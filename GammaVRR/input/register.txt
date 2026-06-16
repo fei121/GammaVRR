@@ -1,0 +1,11 @@
+//Gamma param
+reg_para_test = 1 2 3 4 5
+reg_para_file_dump = 1
+reg_para_Img_Width = 1920;//12bits
+reg_para_Img_Height = 1080;//12bits
+reg_para_gamma_vrr_en = 1;//1bit
+reg_para_gamma_vrr_zero_setting = 0;
+reg_para_frame_rate_level_0 = 101;
+reg_para_gamma_vrr_sw_en=0;
+reg_para_gamma_vrr_frame_level=0;
+

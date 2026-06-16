@@ -1,0 +1,30 @@
+.DS_Store
+
+# IDE and local indexes
+.vs/
+.vscode/
+.idea/
+.codegraph/
+*.user
+
+# Build outputs
+x64/
+GammaVRR/x64/
+GammaVRR/code/HV7607B_GammaVrr
+GammaVRR/code/HV7607B_GammaVrr.dylib
+GammaVRR/code/*.so
+GammaVRR/code/*.dll
+GammaVRR/code/*.exe
+*.obj
+*.o
+*.ilk
+*.pdb
+*.exp
+*.lib
+
+# Generated output images
+GammaVRR/output/
+
+# Large local media/data assets
+AISDR2HDR/
+GammaVRR/input/*.ppm
