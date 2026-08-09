@@ -1,51 +1,51 @@
 # GammaVRR
 
-**A bit-exact C++ Golden Model for refresh-level-dependent Gamma compensation.**
+**面向刷新率等级相关 Gamma 补偿的位精确 C++ Golden Model。**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/fei121/Cmodel/ci.yml?branch=main&label=CI)](https://github.com/fei121/Cmodel/actions/workflows/ci.yml)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C.svg)](https://en.cppreference.com/w/cpp/20)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-v1.0.0%20candidate-2ea44f.svg)](CHANGELOG.md)
 
-[Quick start](#quick-start) · [Algorithm](#how-it-works) · [Interfaces](#library-integration) · [Verification](#verification) · [Scope](#scope-and-non-goals)
+[快速开始](#快速开始) · [算法原理](#工作原理) · [接口集成](#库集成) · [验证体系](#验证体系) · [能力边界](#项目范围与非目标)
 
-GammaVRR applies refresh-level-dependent signed offset LUTs to 12-bit RGB images. Given an input image, three `8 × 256` LUTs, a `FrameLevel`, and a zero setting, it produces deterministic expected pixels for comparison with software, firmware, RTL, or silicon output.
+GammaVRR 用于对 12-bit RGB 图像应用与刷新率等级相关的有符号 Gamma offset LUT。给定输入图像、三份 `8 × 256` LUT、一个 `FrameLevel` 和 zero setting，模型会产生确定性的预期像素，供软件、固件、RTL 或芯片输出进行逐像素比对。
 
-The project focuses on a problem that is easy to underestimate in hardware-oriented image pipelines: two implementations can use the same formula and still disagree because of intermediate rounding, signed arithmetic, endpoint handling, saturation order, or buffer layout. GammaVRR makes those details explicit, executable, and exhaustively tested.
+硬件图像流水线中有一类问题很容易被低估：即使两个实现使用相同公式，也可能因为中间舍入、有符号运算、端点处理、饱和顺序或缓冲区布局产生不同结果。GammaVRR 将这些细节转化为明确的算法规格、可执行的参考实现和可穷举验证的测试体系。
 
-## Highlights
+## 项目亮点
 
-- **Bit-exact integer core** — no floating-point operations in the production model.
-- **Executable specification** — indexing, rounding, clipping, bypass, and failure behavior are documented precisely.
-- **Small, reentrant interface** — no global state; repeated and in-place processing are supported.
-- **C++ and C integration** — use the native C++20 interface or a stable C-compatible seam.
-- **Reproducible CLI workflow** — process P3 or standards-compliant 8/16-bit P6 PPM files.
-- **Independent verification** — all `4096 × 128 × 3 = 1,572,864` sample/level/channel combinations are checked against a separately written floating-point oracle.
-- **Cross-platform project** — CMake build, installable package, and CI definitions for Linux, macOS, and Windows.
-- **Clean example provenance** — all example images and LUTs are generated locally from deterministic synthetic data.
+- **位精确整数核心**：正式模型不使用浮点运算。
+- **可执行算法规格**：索引、舍入、饱和、旁路和错误行为都有精确定义。
+- **小而稳定的接口**：无全局状态，支持重复调用和原地处理。
+- **C++ 与 C 集成**：既可使用原生 C++20 接口，也提供稳定的 C 兼容接口。
+- **可复现 CLI 流程**：支持处理 P3 和符合标准的 8/16-bit P6 PPM 文件。
+- **独立数值验证**：全部 `4096 × 128 × 3 = 1,572,864` 种像素、等级和通道组合都会与独立编写的浮点参考公式比较。
+- **跨平台工程**：提供 CMake 构建、安装包，以及 Linux、macOS、Windows CI 配置。
+- **数据来源清晰**：示例图像和 LUT 均由本地脚本确定性生成，不依赖来源不明的数据。
 
-## Model contract
+## 模型契约
 
-| Property | Definition |
+| 属性 | 定义 |
 | --- | --- |
-| Image layout | Interleaved `R, G, B` |
-| Input/output | Unsigned 12-bit samples, `0…4095` |
-| LUT layout | Three signed `int16` tables in level-major order |
-| LUT shape | `8` refresh-level anchors × `256` gray nodes per channel |
-| FrameLevel | Fixed-point interpolation coordinate, `0…127` |
-| Fractions | 4-bit gray fraction and 4-bit level fraction |
-| Rounding | Nearest integer; exact halves round away from zero |
-| Saturation | Final output clips to `0…4095` |
-| Bypass | Validated input is copied unchanged |
+| 图像布局 | `R, G, B` 交错排列 |
+| 输入与输出 | 无符号 12-bit，范围 `0…4095` |
+| LUT 布局 | 三份有符号 `int16` 表，按 level-major 排列 |
+| LUT 尺寸 | 每通道 `8` 个刷新率等级锚点 × `256` 个灰阶节点 |
+| FrameLevel | 范围 `0…127` 的定点插值坐标 |
+| 插值小数位 | 灰阶方向 4-bit，等级方向 4-bit |
+| 舍入规则 | 舍入到最近整数，恰好一半时远离零 |
+| 饱和规则 | 最终输出裁剪到 `0…4095` |
+| 旁路行为 | 输入验证通过后原样复制到输出 |
 
 > [!IMPORTANT]
-> `FrameLevel` is a fixed-point interpolation coordinate, not a refresh rate in hertz. Mapping a physical refresh rate to `FrameLevel` belongs to the system supplying the LUT and is intentionally outside this model.
+> `FrameLevel` 是定点插值坐标，不是以 Hz 表示的真实刷新率。如何将物理刷新率映射到 `FrameLevel`，由 LUT 提供方所在的系统决定，不属于本模型的职责。
 
-## Quick start
+## 快速开始
 
-### 1. Build and test
+### 1. 构建并运行测试
 
-Requirements: CMake 3.20+, Git, and a C++20 compiler.
+环境要求：CMake 3.20+、Git，以及支持 C++20 的编译器。
 
 ```bash
 git clone https://github.com/fei121/Cmodel.git
@@ -56,19 +56,19 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-CMake fetches pinned releases of [CLI11](https://github.com/CLIUtils/CLI11) and [Catch2](https://github.com/catchorg/Catch2) when the CLI and tests are enabled.
+启用 CLI 和测试时，CMake 会拉取固定版本的 [CLI11](https://github.com/CLIUtils/CLI11) 和 [Catch2](https://github.com/catchorg/Catch2)。
 
-### 2. Generate copyright-safe example data
+### 2. 生成版权清晰的示例数据
 
-The generator uses only the Python standard library:
+生成器仅使用 Python 标准库：
 
 ```bash
 python3 examples/generate_example.py example-data
 ```
 
-It creates a 12-bit RGB gradient and distinct synthetic R/G/B offset LUTs.
+它会生成一张 12-bit RGB 渐变图，以及内容不同的 R/G/B 合成 offset LUT。
 
-### 3. Run the model
+### 3. 运行模型
 
 ```bash
 ./build/gammavrr \
@@ -81,51 +81,51 @@ It creates a 12-bit RGB gradient and distinct synthetic R/G/B offset LUTs.
   --output-format p6
 ```
 
-Useful commands:
+查看完整命令帮助和版本：
 
 ```bash
 ./build/gammavrr --help
 ./build/gammavrr --version
 ```
 
-On multi-configuration generators such as Visual Studio, the executable may be under `build/Release/`.
+使用 Visual Studio 等多配置生成器时，可执行文件可能位于 `build/Release/`。
 
-## How it works
+## 工作原理
 
-Each 12-bit sample and the supplied `FrameLevel` are split into an index and a 4-bit interpolation fraction:
+模型将每个 12-bit 像素和传入的 `FrameLevel` 拆分为索引与 4-bit 插值系数：
 
 ```text
-12-bit sample
-├── high 8 bits ──> gray node 0…255
-└── low  4 bits ──> gray interpolation fraction
+12-bit 像素
+├── 高 8 位 ──> 灰阶节点 0…255
+└── 低 4 位 ──> 灰阶插值系数
 
 FrameLevel
-├── high bits ────> LUT level 0…7
-└── low 4 bits ──> level interpolation fraction
+├── 高位 ─────> LUT 等级 0…7
+└── 低 4 位 ──> 等级插值系数
 ```
 
-For each R/G/B sample, the model performs:
+对于每个 R/G/B 子像素，模型依次执行：
 
 ```text
-1. Interpolate two adjacent gray-node offsets at level N
-2. Interpolate two adjacent gray-node offsets at level N + 1
-3. Interpolate those two intermediate results across FrameLevel
-4. Subtract zero_setting
-5. Add the signed offset to the input sample
-6. Saturate the result to 0…4095
+1. 在等级 N 内，对相邻两个灰阶节点的 offset 进行插值
+2. 在等级 N + 1 内，对相邻两个灰阶节点的 offset 进行插值
+3. 根据 FrameLevel，在上述两个中间结果之间再次插值
+4. 减去 zero_setting
+5. 将有符号 offset 加到输入像素
+6. 将结果饱和到 0…4095
 ```
 
-In compact form:
+简化表达为：
 
 ```text
 output = clamp(input + level_interp(gray_interp(LUT)) - zero_setting, 0, 4095)
 ```
 
-Rounding occurs after each interpolation stage. Combining both stages into one expression is not equivalent and is not conforming. See [the complete algorithm specification](docs/algorithm.md) for the normative behavior.
+每一级插值结束后都会立即舍入。将两级插值合并成一个表达式可能产生不同结果，因此不符合本模型规格。完整定义见 [算法规格文档](docs/algorithm.md)。
 
-## Library integration
+## 库集成
 
-### C++20
+### C++20 接口
 
 ```cpp
 #include <gammavrr/model.hpp>
@@ -141,15 +141,15 @@ const auto error = model.process(
     {output_samples, width, height});
 
 if (error != gammavrr::ProcessError::none) {
-    // gammavrr::to_string(error) describes the failure.
+    // gammavrr::to_string(error) 可返回错误描述。
 }
 ```
 
-The complete input is validated before the output is modified. Input and output may reference the same buffer.
+模型会先验证完整输入，再修改输出缓冲区。输入和输出可以引用同一块缓冲区。
 
-### C interface
+### C 接口
 
-The C-compatible interface is declared in [`include/gammavrr/c_api.h`](include/gammavrr/c_api.h):
+C 兼容接口定义在 [`include/gammavrr/c_api.h`](include/gammavrr/c_api.h)：
 
 ```c
 struct gammavrr_params params = {
@@ -166,22 +166,22 @@ enum gammavrr_status status = gammavrr_process(
     &params);
 ```
 
-Each LUT pointer supplies exactly `8 × 256` signed values in level-major order. Image buffers contain `width × height × 3` interleaved samples.
+每个 LUT 指针必须提供按 level-major 排列的 `8 × 256` 个有符号数值。图像缓冲区包含 `width × height × 3` 个交错排列的样本。
 
-### Install and consume with CMake
+### 安装并通过 CMake 使用
 
 ```bash
 cmake --install build --prefix /your/install/prefix
 ```
 
-Consumer project:
+在外部项目中：
 
 ```cmake
 find_package(GammaVRR 1 CONFIG REQUIRED)
 target_link_libraries(your_target PRIVATE GammaVRR::gammavrr)
 ```
 
-Build only the dependency-free core library:
+只构建无 CLI、无测试依赖的核心库：
 
 ```bash
 cmake -S . -B build-core \
@@ -190,22 +190,22 @@ cmake -S . -B build-core \
 cmake --build build-core --parallel
 ```
 
-## Verification
+## 验证体系
 
-The test suite is designed around numerical behavior rather than code-coverage theater.
+测试体系围绕数值行为设计，而不是单纯追求形式上的代码覆盖率。
 
-| Area | Evidence |
+| 验证领域 | 验证依据 |
 | --- | --- |
-| Interpolation | Fixed two-stage Golden Vector plus exhaustive oracle comparison |
-| Rounding | Positive and negative exact-half cases |
-| Boundaries | Gray nodes, FrameLevel anchors, endpoints, and saturation |
-| Safety | Dimension, buffer, frame-level, and sample validation |
-| Reentrancy | Repeated and in-place processing without global state |
-| File formats | P3 and portable big-endian 8/16-bit P6 round trips |
-| Integration | C header compile check, C interface tests, and installed-package consumer |
-| Runtime diagnostics | AddressSanitizer and UndefinedBehaviorSanitizer configuration |
+| 插值行为 | 固定两级插值 Golden Vector，以及穷举参考公式对比 |
+| 舍入规则 | 正负数恰好一半时的舍入用例 |
+| 边界处理 | 灰阶节点、FrameLevel 锚点、端点和上下界饱和 |
+| 输入安全 | 尺寸、缓冲区、FrameLevel 和像素范围校验 |
+| 可重入性 | 无全局状态下的重复调用和原地处理 |
+| 文件格式 | P3 与可移植的大端 8/16-bit P6 往返测试 |
+| 接口集成 | C 头文件编译、C 接口测试和安装包消费者测试 |
+| 运行时检查 | AddressSanitizer 与 UndefinedBehaviorSanitizer 配置 |
 
-Run the sanitizer configuration:
+运行 Sanitizer：
 
 ```bash
 cmake -S . -B build-asan \
@@ -215,58 +215,58 @@ cmake --build build-asan --parallel
 ctest --test-dir build-asan --output-on-failure
 ```
 
-The main numerical regression test is in [`tests/model_tests.cpp`](tests/model_tests.cpp).
+主要数值回归测试位于 [`tests/model_tests.cpp`](tests/model_tests.cpp)。
 
-## Architecture
+## 架构
 
-GammaVRR keeps the numerical model behind a small interface and treats files, the CLI, and the C ABI as adapters:
+GammaVRR 将数值模型封装在一个小接口后面，并把文件读写、CLI 和 C ABI 作为外围适配器：
 
 ```text
-PPM/LUT files ──> IO adapter ─┐
-                              │
-C++ caller ───────────────────┼──> bit-exact Model ──> output samples
-                              │
-C caller ───────> C adapter ──┘
+PPM/LUT 文件 ──> IO 适配器 ─┐
+                             │
+C++ 调用方 ─────────────────┼──> 位精确 Model ──> 输出像素
+                             │
+C 调用方 ───────> C 适配器 ──┘
 ```
 
 ```text
-include/gammavrr/  Public C++ and C interfaces
-src/               Bit-exact core and file adapters
-app/               Command-line adapter
-tests/             Oracle, Golden Vector, IO, and C-interface tests
-docs/              Normative algorithm and release documentation
-examples/          Deterministic synthetic-data generator
+include/gammavrr/  对外 C++ 与 C 接口
+src/               位精确核心与文件适配器
+app/               命令行适配器
+tests/             参考公式、Golden Vector、IO 和 C 接口测试
+docs/              规范性算法与发布文档
+examples/          确定性合成数据生成器
 ```
 
-## Scope and non-goals
+## 项目范围与非目标
 
-GammaVRR answers one question:
+GammaVRR 专注回答一个问题：
 
-> Given compensation LUTs and a FrameLevel, what exact 12-bit RGB output should the digital model produce?
+> 给定补偿 LUT 和 FrameLevel，数字模型应该产生什么精确的 12-bit RGB 输出？
 
-It intentionally does not:
+它有意不负责：
 
-- measure panel luminance or color;
-- derive or optimize compensation LUTs;
-- read a live refresh rate;
-- process a real-time video stream;
-- control a display, driver, or timing controller;
-- claim to eliminate every cause of VRR flicker.
+- 测量面板亮度或色彩；
+- 生成、拟合或优化补偿 LUT；
+- 读取实时刷新率；
+- 处理实时视频流；
+- 控制显示器、驱动或时序控制器；
+- 宣称消除所有原因导致的 VRR flicker。
 
-Keeping this boundary explicit makes the project useful as a trustworthy Golden Model instead of an incomplete display-calibration platform.
+明确这条边界，可以让项目成为一个可信的 Golden Model，而不是一套不完整的显示校准平台。
 
-## Contributing
+## 参与贡献
 
-Contributions that improve correctness, portability, diagnostics, or verification of the fixed model are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+欢迎提交能够改进固定模型正确性、可移植性、错误诊断或验证能力的贡献。提交 Pull Request 前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-For behavior changes, update the algorithm specification and add a focused regression test. Do not contribute code, images, LUTs, or panel measurements whose redistribution rights are unclear.
+如果修改了算法行为，请同步更新算法规格，并增加针对性的回归测试。请勿提交授权状态不明确的代码、图像、LUT 或面板测量数据。
 
-## Public-release provenance
+## 公开发布与数据来源
 
-The repository's generated examples are synthetic. Anyone publishing a version derived from employer-, customer-, or chip-owned material remains responsible for confirming that they have the right to release the implementation and algorithm.
+仓库生成的示例数据均为合成数据。任何准备公开发布由雇主、客户或芯片内部材料衍生版本的人，都有责任确认自己拥有发布相关实现和算法的权利。
 
-Review [the public release checklist](docs/release-checklist.md), including Git-history provenance, before tagging a release.
+正式发布版本前，请检查 [公开发布清单](docs/release-checklist.md)，其中包括 Git 历史中的来源与权属检查。
 
-## License
+## 开源许可
 
-GammaVRR is available under the [MIT License](LICENSE).
+GammaVRR 基于 [MIT License](LICENSE) 发布。
