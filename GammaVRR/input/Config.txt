@@ -1,6 +1,0 @@
-./input/1920x1080_12.ppm
-./input/GammaVRRLUT_R.txt
-./input/GammaVRRLUT_G.txt
-./input/GammaVRRLUT_B.txt
-./input/register.txt
-./output/       

@@ -6,6 +6,10 @@
 .idea/
 .codegraph/
 *.user
+.planning/
+task_plan.md
+findings.md
+progress.md
 
 # Build outputs
 x64/
@@ -21,9 +25,13 @@ GammaVRR/code/*.exe
 *.pdb
 *.exp
 *.lib
+build/
+cmake-build-*/
+out/
 
 # Generated output images
 GammaVRR/output/
+example-data/
 
 # Large local media/data assets
 AISDR2HDR/
