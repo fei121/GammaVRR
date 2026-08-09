@@ -2,7 +2,7 @@
 
 **面向刷新率等级相关 Gamma 补偿的位精确 C++ Golden Model。**
 
-[![CI](https://img.shields.io/github/actions/workflow/status/fei121/Cmodel/ci.yml?branch=main&label=CI)](https://github.com/fei121/Cmodel/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/fei121/GammaVRR/ci.yml?branch=main&label=CI)](https://github.com/fei121/GammaVRR/actions/workflows/ci.yml)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C.svg)](https://en.cppreference.com/w/cpp/20)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-v1.0.0%20candidate-2ea44f.svg)](CHANGELOG.md)
@@ -62,8 +62,8 @@ GammaVRR 就是这段芯片计算的**软件参考实现**。你可以把它理�
 环境要求：CMake 3.20+、Git，以及支持 C++20 的编译器。
 
 ```bash
-git clone https://github.com/fei121/Cmodel.git
-cd Cmodel
+git clone https://github.com/fei121/GammaVRR.git
+cd GammaVRR
 
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
