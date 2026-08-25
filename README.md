@@ -1,15 +1,15 @@
-# GammaVRR
+# RefreshTone
 
 **面向刷新率等级相关 Gamma 补偿的位精确 C++ Golden Model。**
 
-[![CI](https://img.shields.io/github/actions/workflow/status/fei121/GammaVRR/ci.yml?branch=main&label=CI)](https://github.com/fei121/GammaVRR/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/fei121/RefreshTone/ci.yml?branch=main&label=CI)](https://github.com/fei121/RefreshTone/actions/workflows/ci.yml)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C.svg)](https://en.cppreference.com/w/cpp/20)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-v1.0.0%20candidate-2ea44f.svg)](CHANGELOG.md)
 
 [快速开始](#快速开始) · [算法原理](#工作原理) · [接口集成](#库集成) · [验证体系](#验证体系) · [能力边界](#项目范围与非目标)
 
-![GammaVRR 工作原理：根据灰阶和刷新率等级查询补偿 LUT，通过两级定点插值得到位精确输出](docs/assets/gammavrr-overview.png)
+![RefreshTone 工作原理：根据灰阶和刷新率等级查询补偿 LUT，通过两级定点插值得到位精确输出](docs/assets/refreshtone-overview.png)
 
 ## 这个项目是做什么的？
 
@@ -17,7 +17,7 @@
 
 显示芯片通常会为不同的刷新率等级准备多张 Gamma 补偿表。处理一个像素时，芯片根据“当前灰阶”和“当前刷新率等级”查表并插值，再给原始像素加上一个很小的修正值。
 
-GammaVRR 就是这段芯片计算的**软件参考实现**。你可以把它理解成一个“显示芯片的标准答案计算器”：输入一张 12-bit RGB 图像和补偿表，得到芯片理论上应该输出的每个像素值。
+RefreshTone 就是这段芯片计算的**软件参考实现**。你可以把它理解成一个“显示芯片的标准答案计算器”：输入一张 12-bit RGB 图像和补偿表，得到芯片理论上应该输出的每个像素值。
 
 例如，某个像素的 R 通道输入值是 `1000`，查表并插值后得到 offset `+6`，模型输出就是 `1006`（最终结果仍会限制在 `0…4095`）。R、G、B 三个通道分别计算。
 
@@ -25,7 +25,7 @@ GammaVRR 就是这段芯片计算的**软件参考实现**。你可以把它理�
 
 给定输入图像、三份 `8 × 256` LUT、一个 `FrameLevel` 和 zero setting，模型会产生确定性的预期像素。
 
-硬件图像流水线中有一类问题很容易被低估：即使两个实现使用相同公式，也可能因为中间舍入、有符号运算、端点处理、饱和顺序或缓冲区布局产生不同结果。GammaVRR 将这些细节转化为明确的算法规格、可执行的参考实现和可穷举验证的测试体系。
+硬件图像流水线中有一类问题很容易被低估：即使两个实现使用相同公式，也可能因为中间舍入、有符号运算、端点处理、饱和顺序或缓冲区布局产生不同结果。RefreshTone 将这些细节转化为明确的算法规格、可执行的参考实现和可穷举验证的测试体系。
 
 ## 项目亮点
 
@@ -62,8 +62,8 @@ GammaVRR 就是这段芯片计算的**软件参考实现**。你可以把它理�
 环境要求：CMake 3.20+、Git，以及支持 C++20 的编译器。
 
 ```bash
-git clone https://github.com/fei121/GammaVRR.git
-cd GammaVRR
+git clone https://github.com/fei121/RefreshTone.git
+cd RefreshTone
 
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
@@ -85,7 +85,7 @@ python3 examples/generate_example.py example-data
 ### 3. 运行模型
 
 ```bash
-./build/gammavrr \
+./build/refreshtone \
   --input example-data/input.ppm \
   --output example-data/output.ppm \
   --lut-r example-data/lut_r.txt \
@@ -98,8 +98,8 @@ python3 examples/generate_example.py example-data
 查看完整命令帮助和版本：
 
 ```bash
-./build/gammavrr --help
-./build/gammavrr --version
+./build/refreshtone --help
+./build/refreshtone --version
 ```
 
 使用 Visual Studio 等多配置生成器时，可执行文件可能位于 `build/Release/`。
@@ -142,10 +142,10 @@ output = clamp(input + level_interp(gray_interp(LUT)) - zero_setting, 0, 4095)
 ### C++20 接口
 
 ```cpp
-#include <gammavrr/model.hpp>
+#include <refreshtone/model.hpp>
 
-gammavrr::Lut lut = load_your_lut();
-gammavrr::Model model(
+refreshtone::Lut lut = load_your_lut();
+refreshtone::Model model(
     {.enabled = true, .zero_setting = 0},
     std::move(lut));
 
@@ -154,8 +154,8 @@ const auto error = model.process(
     frame_level,
     {output_samples, width, height});
 
-if (error != gammavrr::ProcessError::none) {
-    // gammavrr::to_string(error) 可返回错误描述。
+if (error != refreshtone::ProcessError::none) {
+    // refreshtone::to_string(error) 可返回错误描述。
 }
 ```
 
@@ -163,16 +163,16 @@ if (error != gammavrr::ProcessError::none) {
 
 ### C 接口
 
-C 兼容接口定义在 [`include/gammavrr/c_api.h`](include/gammavrr/c_api.h)：
+C 兼容接口定义在 [`include/refreshtone/c_api.h`](include/refreshtone/c_api.h)：
 
 ```c
-struct gammavrr_params params = {
+struct refreshtone_params params = {
     .enabled = 1,
     .zero_setting = 0,
     .frame_level = 73,
 };
 
-enum gammavrr_status status = gammavrr_process(
+enum refreshtone_status status = refreshtone_process(
     input, input_count,
     output, output_count,
     width, height,
@@ -191,16 +191,16 @@ cmake --install build --prefix /your/install/prefix
 在外部项目中：
 
 ```cmake
-find_package(GammaVRR 1 CONFIG REQUIRED)
-target_link_libraries(your_target PRIVATE GammaVRR::gammavrr)
+find_package(RefreshTone 1 CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE RefreshTone::refreshtone)
 ```
 
 只构建无 CLI、无测试依赖的核心库：
 
 ```bash
 cmake -S . -B build-core \
-  -DGAMMAVRR_BUILD_CLI=OFF \
-  -DGAMMAVRR_BUILD_TESTS=OFF
+  -DREFRESHTONE_BUILD_CLI=OFF \
+  -DREFRESHTONE_BUILD_TESTS=OFF
 cmake --build build-core --parallel
 ```
 
@@ -224,7 +224,7 @@ cmake --build build-core --parallel
 ```bash
 cmake -S . -B build-asan \
   -DCMAKE_BUILD_TYPE=Debug \
-  -DGAMMAVRR_ENABLE_SANITIZERS=ON
+  -DREFRESHTONE_ENABLE_SANITIZERS=ON
 cmake --build build-asan --parallel
 ctest --test-dir build-asan --output-on-failure
 ```
@@ -233,7 +233,7 @@ ctest --test-dir build-asan --output-on-failure
 
 ## 架构
 
-GammaVRR 将数值模型封装在一个小接口后面，并把文件读写、CLI 和 C ABI 作为外围适配器：
+RefreshTone 将数值模型封装在一个小接口后面，并把文件读写、CLI 和 C ABI 作为外围适配器：
 
 ```text
 PPM/LUT 文件 ──> IO 适配器 ─┐
@@ -244,7 +244,7 @@ C 调用方 ───────> C 适配器 ──┘
 ```
 
 ```text
-include/gammavrr/  对外 C++ 与 C 接口
+include/refreshtone/  对外 C++ 与 C 接口
 src/               位精确核心与文件适配器
 app/               命令行适配器
 tests/             参考公式、Golden Vector、IO 和 C 接口测试
@@ -254,7 +254,7 @@ examples/          确定性合成数据生成器
 
 ## 项目范围与非目标
 
-GammaVRR 专注回答一个问题：
+RefreshTone 专注回答一个问题：
 
 > 给定补偿 LUT 和 FrameLevel，数字模型应该产生什么精确的 12-bit RGB 输出？
 
@@ -271,4 +271,4 @@ GammaVRR 专注回答一个问题：
 
 ## 开源许可
 
-GammaVRR 基于 [MIT License](LICENSE) 发布。
+RefreshTone 基于 [MIT License](LICENSE) 发布。

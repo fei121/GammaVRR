@@ -1,8 +1,8 @@
-# GammaVRR Algorithm Specification
+# RefreshTone Algorithm Specification
 
 ## Scope
 
-GammaVRR applies refresh-level-dependent signed offsets to one interleaved RGB image. It is a deterministic digital reference model. It does not measure a panel, generate calibration LUTs, or control display hardware.
+RefreshTone applies refresh-level-dependent signed offsets to one interleaved RGB image. It is a deterministic digital reference model. It does not measure a panel, generate calibration LUTs, or control display hardware.
 
 The fixed model shape is:
 

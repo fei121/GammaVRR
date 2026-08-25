@@ -17,7 +17,7 @@ This checklist separates technical readiness from the legal authority to publish
 - Run the complete test suite.
 - Run the ASan/UBSan configuration.
 - Build with `BUILD_SHARED_LIBS=ON`.
-- Install the package and build `tests/install_consumer` with `find_package(GammaVRR)`.
+- Install the package and build `tests/install_consumer` with `find_package(RefreshTone)`.
 - Generate fresh example data and run the CLI for P3 and P6 output.
 - Verify that the CLI rejects a non-4095 PPM and an out-of-range FrameLevel.
 - Confirm `git diff --check` is clean.
@@ -25,7 +25,7 @@ This checklist separates technical readiness from the legal authority to publish
 
 ## Repository presentation
 
-- Rename the public repository from a generic internal name such as `Cmodel` to `GammaVRR` or `gammavrr`.
+- Rename the public repository from a generic internal name such as `Cmodel` to `RefreshTone` or `refreshtone`.
 - Add a concise GitHub description and relevant topics such as `display`, `gamma`, `vrr`, `cpp`, and `rtl-verification`.
 - Enable CI before tagging `v1.0.0`.
 - Replace `Unreleased` in `CHANGELOG.md` with the actual release date.

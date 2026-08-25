@@ -1,6 +1,6 @@
 # Contributing
 
-GammaVRR intentionally keeps a narrow scope. Changes should improve correctness, portability, diagnostics, or verification of the fixed 12-bit `8 x 256` model.
+RefreshTone intentionally keeps a narrow scope. Changes should improve correctness, portability, diagnostics, or verification of the fixed 12-bit `8 x 256` model.
 
 ## Before opening a pull request
 

@@ -1,13 +1,13 @@
-#ifndef GAMMAVRR_IO_HPP
-#define GAMMAVRR_IO_HPP
+#ifndef REFRESHTONE_IO_HPP
+#define REFRESHTONE_IO_HPP
 
-#include "gammavrr/model.hpp"
+#include "refreshtone/model.hpp"
 
 #include <cstdint>
 #include <filesystem>
 #include <vector>
 
-namespace gammavrr {
+namespace refreshtone {
 
 enum class PpmFormat {
     p3,
@@ -30,6 +30,6 @@ struct Image {
 
 void write_ppm(const Image &image, const std::filesystem::path &path);
 
-} // namespace gammavrr
+} // namespace refreshtone
 
 #endif

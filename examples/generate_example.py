@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate copyright-safe, deterministic GammaVRR example inputs."""
+"""Generate copyright-safe, deterministic RefreshTone example inputs."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ def make_lut(channel_scale: float) -> list[int]:
 
 def write_lut(path: Path, values: list[int]) -> None:
     with path.open("w", encoding="utf-8", newline="\n") as output:
-        output.write("# Synthetic GammaVRR offset LUT: 8 levels x 256 nodes\n")
+        output.write("# Synthetic RefreshTone offset LUT: 8 levels x 256 nodes\n")
         for level in range(8):
             row = values[level * 256 : (level + 1) * 256]
             output.write(" ".join(str(value) for value in row))

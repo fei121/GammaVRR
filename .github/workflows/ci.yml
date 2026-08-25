@@ -31,7 +31,7 @@ jobs:
         run: >-
           cmake -S . -B build-asan
           -DCMAKE_BUILD_TYPE=Debug
-          -DGAMMAVRR_ENABLE_SANITIZERS=ON
+          -DREFRESHTONE_ENABLE_SANITIZERS=ON
       - name: Build
         run: cmake --build build-asan --parallel
       - name: Test

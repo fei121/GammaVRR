@@ -1,10 +1,10 @@
-#include "gammavrr/model.hpp"
+#include "refreshtone/model.hpp"
 
 #include <algorithm>
 #include <limits>
 #include <utility>
 
-namespace gammavrr {
+namespace refreshtone {
 namespace {
 
 [[nodiscard]] constexpr std::int32_t round_divide_by_16(std::int32_t value) noexcept {
@@ -107,4 +107,4 @@ std::string_view to_string(ProcessError error) noexcept {
     return "unknown processing error";
 }
 
-} // namespace gammavrr
+} // namespace refreshtone

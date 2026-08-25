@@ -1,5 +1,5 @@
-#include "gammavrr/io.hpp"
-#include "gammavrr/model.hpp"
+#include "refreshtone/io.hpp"
+#include "refreshtone/model.hpp"
 
 #include <CLI/CLI.hpp>
 
@@ -11,8 +11,8 @@
 #include <utility>
 
 int main(int argc, char **argv) {
-    CLI::App app{"Apply the bit-exact GammaVRR offset model to a 12-bit RGB PPM image"};
-    app.set_version_flag("--version", GAMMAVRR_VERSION);
+    CLI::App app{"Apply the bit-exact RefreshTone offset model to a 12-bit RGB PPM image"};
+    app.set_version_flag("--version", REFRESHTONE_VERSION);
 
     std::filesystem::path input_path;
     std::filesystem::path output_path;
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     app.add_option("--lut-b", lut_b_path, "Blue 8x256 offset LUT")->required();
     app.add_option("-f,--frame-level", frame_level, "Frame level in the range 0..127")
         ->required()
-        ->check(CLI::Range(gammavrr::kMinFrameLevel, gammavrr::kMaxFrameLevel));
+        ->check(CLI::Range(refreshtone::kMinFrameLevel, refreshtone::kMaxFrameLevel));
     app.add_option("--zero-setting", zero_setting, "Offset subtracted after interpolation");
     app.add_flag("--disable", disabled, "Bypass compensation and copy the input");
     app.add_option("--output-format", output_format, "Override output format: p3 or p6")
@@ -40,31 +40,31 @@ int main(int argc, char **argv) {
     CLI11_PARSE(app, argc, argv);
 
     try {
-        auto input = gammavrr::read_ppm(input_path);
-        if (input.max_value != gammavrr::kMaxSampleValue) {
+        auto input = refreshtone::read_ppm(input_path);
+        if (input.max_value != refreshtone::kMaxSampleValue) {
             std::cerr << "error: the model requires a PPM maximum value of 4095, found "
                       << input.max_value << '\n';
             return 2;
         }
 
-        auto lut = gammavrr::read_lut_files(lut_r_path, lut_g_path, lut_b_path);
-        const gammavrr::Model model({!disabled, zero_setting}, std::move(lut));
+        auto lut = refreshtone::read_lut_files(lut_r_path, lut_g_path, lut_b_path);
+        const refreshtone::Model model({!disabled, zero_setting}, std::move(lut));
 
         auto output = input;
         if (output_format == "p3") {
-            output.format = gammavrr::PpmFormat::p3;
+            output.format = refreshtone::PpmFormat::p3;
         } else if (output_format == "p6") {
-            output.format = gammavrr::PpmFormat::p6;
+            output.format = refreshtone::PpmFormat::p6;
         }
 
         const auto error = model.process({input.samples, input.width, input.height}, frame_level,
                                          {output.samples, output.width, output.height});
-        if (error != gammavrr::ProcessError::none) {
-            std::cerr << "error: " << gammavrr::to_string(error) << '\n';
+        if (error != refreshtone::ProcessError::none) {
+            std::cerr << "error: " << refreshtone::to_string(error) << '\n';
             return 2;
         }
 
-        gammavrr::write_ppm(output, output_path);
+        refreshtone::write_ppm(output, output_path);
         std::cout << "processed " << input.width << 'x' << input.height
                   << " RGB image at frame level " << frame_level << " -> " << output_path.string()
                   << '\n';

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
-project(GammaVRRInstallConsumer LANGUAGES CXX)
+project(RefreshToneInstallConsumer LANGUAGES CXX)
 
-find_package(GammaVRR 1 CONFIG REQUIRED)
+find_package(RefreshTone 1 CONFIG REQUIRED)
 
-add_executable(gammavrr_install_consumer main.cpp)
-target_compile_features(gammavrr_install_consumer PRIVATE cxx_std_20)
-target_link_libraries(gammavrr_install_consumer PRIVATE GammaVRR::gammavrr)
+add_executable(refreshtone_install_consumer main.cpp)
+target_compile_features(refreshtone_install_consumer PRIVATE cxx_std_20)
+target_link_libraries(refreshtone_install_consumer PRIVATE RefreshTone::refreshtone)

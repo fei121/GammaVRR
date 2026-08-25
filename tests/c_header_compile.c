@@ -1,3 +1,3 @@
-#include "gammavrr/c_api.h"
+#include "refreshtone/c_api.h"
 
-enum gammavrr_status gammavrr_c_header_compile_test(void) { return GAMMAVRR_STATUS_OK; }
+enum refreshtone_status refreshtone_c_header_compile_test(void) { return REFRESHTONE_STATUS_OK; }

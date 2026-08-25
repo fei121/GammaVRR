@@ -1,5 +1,5 @@
-#ifndef GAMMAVRR_MODEL_HPP
-#define GAMMAVRR_MODEL_HPP
+#ifndef REFRESHTONE_MODEL_HPP
+#define REFRESHTONE_MODEL_HPP
 
 #include <array>
 #include <cstddef>
@@ -7,7 +7,7 @@
 #include <span>
 #include <string_view>
 
-namespace gammavrr {
+namespace refreshtone {
 
 inline constexpr std::size_t kChannelCount = 3;
 inline constexpr std::size_t kLevelCount = 8;
@@ -62,6 +62,6 @@ class Model final {
     Lut lut_;
 };
 
-} // namespace gammavrr
+} // namespace refreshtone
 
 #endif

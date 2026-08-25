@@ -13,12 +13,12 @@ progress.md
 
 # Build outputs
 x64/
-GammaVRR/x64/
-GammaVRR/code/HV7607B_GammaVrr
-GammaVRR/code/HV7607B_GammaVrr.dylib
-GammaVRR/code/*.so
-GammaVRR/code/*.dll
-GammaVRR/code/*.exe
+RefreshTone/x64/
+RefreshTone/code/HV7607B_RefreshTone
+RefreshTone/code/HV7607B_RefreshTone.dylib
+RefreshTone/code/*.so
+RefreshTone/code/*.dll
+RefreshTone/code/*.exe
 *.obj
 *.o
 *.ilk
@@ -30,9 +30,9 @@ cmake-build-*/
 out/
 
 # Generated output images
-GammaVRR/output/
+RefreshTone/output/
 example-data/
 
 # Large local media/data assets
 AISDR2HDR/
-GammaVRR/input/*.ppm
+RefreshTone/input/*.ppm

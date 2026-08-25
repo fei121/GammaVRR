@@ -1,4 +1,4 @@
-#include "gammavrr/io.hpp"
+#include "refreshtone/io.hpp"
 
 #include <algorithm>
 #include <array>
@@ -11,7 +11,7 @@
 #include <string>
 #include <string_view>
 
-namespace gammavrr {
+namespace refreshtone {
 namespace {
 
 [[nodiscard]] std::string read_ppm_token(std::istream &input, const char *description) {
@@ -233,4 +233,4 @@ void write_ppm(const Image &image, const std::filesystem::path &path) {
     }
 }
 
-} // namespace gammavrr
+} // namespace refreshtone
